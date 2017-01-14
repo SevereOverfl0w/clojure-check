@@ -1,0 +1,5 @@
+= Clojure Check: A command-line interface to checkers via nREPL
+
+== Rationale
+
+This is a quicker alternative to `lein eastwood` or `lein kibit` when you already have an nREPL running. The main driver is to be able to refer this from Vim for tools like https://github.com/w0rp/ale:[ALE]
