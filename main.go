@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 	bencode "github.com/jackpal/bencode-go"
 	"gopkg.in/edn.v1"
+	"regexp"
 	"fmt"
 	"net"
 	"os"
@@ -42,8 +43,6 @@ func eastwood(args []string, conn net.Conn){
     b, err := edn.Marshal(x)
     code := fmt.Sprintf(`(do (require 'eastwood.lint) (eastwood.lint/eastwood '%v))`, string(b))
 
-    fmt.Println(code)
-
     msguuid, _ := uuid.NewRandom()
     msgid := msguuid.String()
 
@@ -74,8 +73,12 @@ func eastwood(args []string, conn net.Conn){
 	    fmt.Println(result.Ex)
 	}
 
-	if result.Out != "" {
-	    fmt.Println("", result.Out)
+	if result.Out != ""  {
+	    matched, _ := regexp.MatchString(".+:.+\n", result.Out)
+	    xmatch, _ := regexp.MatchString("==.+\n", result.Out)
+	    if matched && !xmatch {
+		fmt.Print(result.Out)
+	    }
 	}
 
 	// if result.Value != "" {
