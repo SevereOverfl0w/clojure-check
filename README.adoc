@@ -3,3 +3,53 @@
 == Rationale
 
 This is a quicker alternative to `lein eastwood` or `lein kibit` when you already have an nREPL running. The main driver is to be able to refer this from Vim for tools like https://github.com/w0rp/ale[ALE]
+
+== Usage
+
+I use https://github.com/gpmgo/gopm[gopm] to build this project.
+
+[source,shell]
+----
+$ gopm get # Fetch dependencies
+$ gopm build # Build ./output
+----
+
+You can get output from eastwood on a running nREPL via
+
+[source,shell]
+----
+$ ./output localhost:33999 # Run against all namespaces
+$ ./output localhost:33999 app.website app.foo dev # Specify subset of namespaces to use
+----
+
+=== ALE
+
+I'm currently using this configuration with ALE, I don't expect the CLI API to remain particularly stable, so I've not committed this yet.
+
+[source,viml]
+----
+" Packages
+Plug 'tpope/vim-fireplace'
+Plug 'w0rp/ale'
+
+" ALE config
+let g:clojure_check_bin = '/absolute/path/to/clojure-check/output'
+function! s:ClojureHost()
+  return fireplace#client().connection.transport.host
+endfunction
+
+function! s:ClojurePort()
+  return fireplace#client().connection.transport.port
+endfunction
+
+function! Eastwood(buffer)
+  return g:clojure_check_bin.' '.s:ClojureHost().':'.s:ClojurePort().' '.fireplace#ns(a:buffer)
+endfunction
+
+call ale#linter#Define('clojure', {
+\   'name': 'eastwood',
+\   'executable': g:clojure_check_bin,
+\   'command_callback': 'Eastwood',
+\   'callback': 'ale#handlers#HandleUnixFormatAsError',
+\})
+----
