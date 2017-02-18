@@ -8,13 +8,16 @@ This is a quicker alternative to `lein eastwood` or `lein kibit` when you alread
 
 === Building
 
-I use https://github.com/gpmgo/gopm[gopm] to build this project.
+I use https://github.com/Masterminds/glide[glide] to build this project.
+
+NOTE: I had to run `git config --global http.https://gopkg.in.followRedirects true` with the latest git.
 
 [source,shell]
 ----
-$ gopm get # Fetch dependencies
-$ gopm build # Build ./output
+$ glide install
+$ go build <1>
 ----
+<1> Creates ./output
 
 You can get output from eastwood on a running nREPL via
 

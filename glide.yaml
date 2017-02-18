@@ -1,0 +1,5 @@
+package: .
+import:
+- package: github.com/google/uuid
+- package: github.com/jackpal/bencode-go
+- package: gopkg.in/edn.v1

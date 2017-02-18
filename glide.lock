@@ -1,0 +1,10 @@
+hash: 9b2bc04253811a8ddd5d11329338fd3a4f6590f8ea36490cae1f893d5fdcfb14
+updated: 2017-02-18T23:48:07.405145791Z
+imports:
+- name: github.com/google/uuid
+  version: 064e2069ce9c359c118179501254f67d7d37ba24
+- name: github.com/jackpal/bencode-go
+  version: 8b8d9a9b37fcd43f365439810d725081b114af68
+- name: gopkg.in/edn.v1
+  version: 470b0ab438bbcd34ad4b5cab3d1eb1c13d69d6b9
+testImports: []
