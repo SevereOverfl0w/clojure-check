@@ -6,6 +6,8 @@ This is a quicker alternative to `lein eastwood` or `lein kibit` when you alread
 
 == Usage
 
+=== Building
+
 I use https://github.com/gpmgo/gopm[gopm] to build this project.
 
 [source,shell]
@@ -20,6 +22,30 @@ You can get output from eastwood on a running nREPL via
 ----
 $ ./output localhost:33999 # Run against all namespaces
 $ ./output localhost:33999 app.website app.foo dev # Specify subset of namespaces to use
+----
+
+=== REPL setup
+
+[source,clojure]
+.~/.lein/profiles.clj
+----
+{:user
+ {:dependencies
+  [[jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
+   [jonase/kibit "0.1.3" :exclusions [org.clojure/clojure]]]}}
+----
+
+[source,clojure]
+.~/.boot/profile.boot
+----
+;; OR merge this with your cider task
+(deftask linters "Linter profile"
+  []
+  (require 'boot.repl)
+  (swap! @(resolve 'boot.repl/*default-dependencies*)
+         concat '[[jonase/eastwood "0.2.3" :exclusions [org.clojure/clojure]]
+                  [jonase/kibit "0.1.3" :exclusions [org.clojure/clojure]])
+  identity)
 ----
 
 === ALE
