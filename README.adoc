@@ -86,5 +86,4 @@ call ale#linter#Define('clojure', {
 \   'command_callback': 'ClojureCheck',
 \   'callback': 'ale#handlers#HandleUnixFormatAsError',
 \})
-
 ----
