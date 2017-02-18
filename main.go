@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"io/ioutil"
 )
 
 func stringInSlice(a string, list []string) bool {
@@ -30,6 +31,44 @@ type Response struct {
 
 type EastwoodArgs struct {
     Namespaces []edn.Symbol `edn:",omitempty"`
+}
+
+func printmsgid(conn net.Conn, msgid string) {
+    for {
+	result := Response{}
+	err := bencode.Unmarshal(conn, &result)
+	if err != nil {
+	    fmt.Println(err)
+	    return
+	}
+	if result.Id != msgid {
+	    fmt.Println("Skipping this message id")
+	    continue
+	}
+	if result.Ex != "" {
+	    fmt.Println(result.Ex)
+	}
+
+	if result.Out != ""  {
+	    matched, _ := regexp.MatchString(".+:.+\n", result.Out)
+	    xmatch, _ := regexp.MatchString("==.+\n", result.Out)
+	    if matched && !xmatch {
+		fmt.Print(result.Out)
+	    }
+	}
+
+	// if result.Value != "" {
+	//     fmt.Println("value: ")
+	//     fmt.Println(result.Value)
+	// }
+
+	if len(result.Status) > 0 {
+	    return
+	    // if stringInSlice("done", result.Status) {
+		// return
+	    // }
+	}
+    }
 }
 
 func eastwood(args []string, conn net.Conn){
@@ -58,15 +97,35 @@ func eastwood(args []string, conn net.Conn){
 	return
     }
 
+    printmsgid(conn, msgid)
+}
+
+func kibit(input string, conn net.Conn) {
+    code := fmt.Sprintf(`(do (require 'kibit.check) (run! (fn [{:keys [file line expr alt]}] (printf "%%s:%%s: Consider using: %%s Instead of %%s" file line alt expr)) (kibit.check/check-reader (java.io.StringReader. %v))))`, input)
+
+    msguuid, _ := uuid.NewRandom()
+    msgid := msguuid.String()
+
+    instruction := map[string]interface{}{
+	"op": "eval",
+	"code": code,
+	"id": msgid,
+    }
+    err := bencode.Marshal(conn, instruction)
+
+    if err != nil {
+	fmt.Println(err)
+	return
+    }
+
     for {
 	result := Response{}
-	err = bencode.Unmarshal(conn, &result)
+	err := bencode.Unmarshal(conn, &result)
 	if err != nil {
 	    fmt.Println(err)
 	    return
 	}
 	if result.Id != msgid {
-	    fmt.Println("Skipping this message id")
 	    continue
 	}
 	if result.Ex != "" {
@@ -74,22 +133,11 @@ func eastwood(args []string, conn net.Conn){
 	}
 
 	if result.Out != ""  {
-	    matched, _ := regexp.MatchString(".+:.+\n", result.Out)
-	    xmatch, _ := regexp.MatchString("==.+\n", result.Out)
-	    if matched && !xmatch {
-		fmt.Print(result.Out)
-	    }
+	    fmt.Print(result.Out)
 	}
-
-	// if result.Value != "" {
-	//     fmt.Println(result.Value)
-	// }
 
 	if len(result.Status) > 0 {
 	    return
-	    // if stringInSlice("done", result.Status) {
-		// return
-	    // }
 	}
     }
 }
@@ -109,4 +157,8 @@ func main() {
     defer conn.Close()
 
     eastwood(args[2:], conn)
+
+    source_file_bytes, err := ioutil.ReadAll(os.Stdin)
+    b, err := edn.Marshal(string(source_file_bytes))
+    kibit(string(b), conn)
 }
