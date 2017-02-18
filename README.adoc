@@ -42,14 +42,19 @@ function! s:ClojurePort()
   return fireplace#client().connection.transport.port
 endfunction
 
-function! Eastwood(buffer)
-  return g:clojure_check_bin.' '.s:ClojureHost().':'.s:ClojurePort().' '.fireplace#ns(a:buffer)
+function! ClojureCheck(buffer)
+  try
+    return g:clojure_check_bin.' '.s:ClojureHost().':'.s:ClojurePort().' '.fireplace#ns(a:buffer)
+  catch /Fireplace/
+    return ''
+  endtry
 endfunction
 
 call ale#linter#Define('clojure', {
-\   'name': 'eastwood',
+\   'name': 'clojure_check',
 \   'executable': g:clojure_check_bin,
-\   'command_callback': 'Eastwood',
+\   'command_callback': 'ClojureCheck',
 \   'callback': 'ale#handlers#HandleUnixFormatAsError',
 \})
+
 ----
