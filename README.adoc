@@ -19,12 +19,13 @@ $ go build <1>
 ----
 <1> Creates ./output
 
-You can get output from eastwood on a running nREPL via
+=== CLI usage
+
+You can get output from eastwood & kibit on a running nREPL via
 
 [source,shell]
 ----
-$ ./output localhost:33999 # Run against all namespaces
-$ ./output localhost:33999 app.website app.foo dev # Specify subset of namespaces to use
+$ ./output localhost:33999 app.website < src/app/website.clj
 ----
 
 === REPL setup
