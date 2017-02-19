@@ -101,7 +101,7 @@ func eastwood(args []string, conn net.Conn) {
 }
 
 func kibit(input string, conn net.Conn) {
-	code := fmt.Sprintf(`(do (require 'kibit.check) (run! (fn [{:keys [file line expr alt]}] (printf "%%s:%%s: Consider using: %%s Instead of %%s" file line alt expr)) (kibit.check/check-reader (java.io.StringReader. %v))))`, input)
+	code := fmt.Sprintf(`(do (require 'kibit.check) (run! (fn [{:keys [file line expr alt]}] (printf "%%s:%%s: Consider using: %%s Instead of %%s\n" file line alt expr)) (kibit.check/check-reader (java.io.StringReader. %v))))`, input)
 
 	msguuid, _ := uuid.NewRandom()
 	msgid := msguuid.String()
