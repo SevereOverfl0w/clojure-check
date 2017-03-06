@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	// "os/signal"
+	// "syscall"
 	"regexp"
 )
 
@@ -101,7 +103,7 @@ func eastwood(args []string, conn net.Conn) {
 }
 
 func kibit(input string, conn net.Conn) {
-	code := fmt.Sprintf(`(do (require 'kibit.check) (run! (fn [{:keys [file line expr alt]}] (printf "%%s:%%s: Consider using: %%s Instead of %%s\n" file line alt expr)) (kibit.check/check-reader (java.io.StringReader. %v))))`, input)
+	code := fmt.Sprintf(`(do (require 'kibit.check) (run! (fn [{:keys [file line expr alt]}] (printf "%%s:%%s: Consider using: %%s Instead of %%s\n" file line (pr-str alt) (pr-str expr))) (kibit.check/check-reader (java.io.StringReader. %v))))`, input)
 
 	msguuid, _ := uuid.NewRandom()
 	msgid := msguuid.String()
@@ -155,6 +157,14 @@ func main() {
 		return
 	}
 	defer conn.Close()
+
+	// sigchan := make(chan os.Signal, 2)
+	// signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM, syscall.SIGKILL)
+	// go func() {
+	// 	<-sigchan
+	// 	conn.Close()
+	// 	os.Exit(1)
+	// }()
 
 	eastwood(args[2:], conn)
 
