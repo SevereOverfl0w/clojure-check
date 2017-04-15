@@ -1,0 +1,15 @@
+language: go
+install:
+  - go get github.com/mitchellh/gox
+  - curl https://glide.sh/get | sh
+script:
+  - glide install
+  - gox -output "$TRAVIS_BUILD_DIR/clojure-check_{{.OS}}_{{.Arch}}"
+deploy:
+  provider: releases
+  api_key: "$GITHUB_TOKEN"
+  file_glob: true
+  file: clojure-check*
+  skip_cleanup: true
+  on:
+    tags: true
