@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+version=0.1
+cd "$(dirname "${BASH_SOURCE[0]}")"
+check_base="$(pwd)"
+bin_name="clojure-check-v$version"
+bin_dir="$check_base/bin"
+target_bin="$bin_dir/$bin_name"
+
+try_wget() {
+  command -v wget > /dev/null && wget -O $bin_name $1
+}
+
+try_curl() {
+  command -v curl > /dev/null && curl -fL $1 -o $bin_name
+}
+
+download() {
+  if ! [ -x $target_bin ]; then
+    rm -rf $bin_dir/*
+    local url="https://github.com/SevereOverfl0w/clojure-check/releases/download/v$version/$1"
+    try_curl $url || try_wget $url
+    chmod +x $target_bin
+  fi
+}
+
+# Create bin dir
+mkdir -p $bin_dir && cd $bin_dir
+
+# Try to download binary executable
+archi=$(uname -sm)
+binary_available=1
+case "$archi" in
+  Darwin\ *64)   download clojure-check_darwin_${binary_arch:-amd64}  ;;
+  Darwin\ *86)   download clojure-check_darwin_${binary_arch:-386}    ;;
+  Linux\ *64)    download clojure-check_linux_${binary_arch:-amd64}   ;;
+  Linux\ *86)    download clojure-check_linux_${binary_arch:-386}     ;;
+  Linux\ armv5*) download clojure-check_linux_${binary_arch:-arm5}    ;;
+  Linux\ armv6*) download clojure-check_linux_${binary_arch:-arm6}    ;;
+  Linux\ armv7*) download clojure-check_linux_${binary_arch:-arm7}    ;;
+  Linux\ armv8*) download clojure-check_linux_${binary_arch:-arm8}    ;;
+  FreeBSD\ *64)  download clojure-check_freebsd_${binary_arch:-amd64} ;;
+  FreeBSD\ *86)  download clojure-check_freebsd_${binary_arch:-386}   ;;
+  OpenBSD\ *64)  download clojure-check_openbsd_${binary_arch:-amd64} ;;
+  OpenBSD\ *86)  download clojure-check_openbsd_${binary_arch:-386}   ;;
+  *)             binary_available=0 ;;
+esac
+
+if [ $binary_available -eq 0 ]; then
+  echo "No prebuilt binary for $archi ..."
+fi

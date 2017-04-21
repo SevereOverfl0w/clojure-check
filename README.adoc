@@ -17,7 +17,7 @@ NOTE: I had to run `git config --global http.https://gopkg.in.followRedirects tr
 $ glide install
 $ go build <1>
 ----
-<1> Creates ./output
+<1> Creates ./clojure-check
 
 === CLI usage
 
@@ -52,38 +52,15 @@ $ ./output localhost:33999 app.website < src/app/website.clj
   identity)
 ----
 
-=== ALE
+== Editor integration
 
-I'm currently using this configuration with ALE, I don't expect the CLI API to remain particularly stable, so I've not committed this yet.
+Inspired by http://ddg.gg/[fzf] I have included a plugin folder in this repo which allows easy integration with Vim. I welcome similar PRs for other editors.
 
-[source,viml]
+==== Vim - ALE
+
+There is ALE integration available in this repo. It depends on Fireplace to find connection details.
+
 ----
-" Packages
-Plug 'tpope/vim-fireplace'
 Plug 'w0rp/ale'
-
-" ALE config
-let g:clojure_check_bin = '/absolute/path/to/clojure-check/output'
-function! s:ClojureHost()
-  return fireplace#client().connection.transport.host
-endfunction
-
-function! s:ClojurePort()
-  return fireplace#client().connection.transport.port
-endfunction
-
-function! ClojureCheck(buffer)
-  try
-    return g:clojure_check_bin.' '.s:ClojureHost().':'.s:ClojurePort().' '.fireplace#ns(a:buffer)
-  catch /Fireplace/
-    return ''
-  endtry
-endfunction
-
-call ale#linter#Define('clojure', {
-\   'name': 'clojure_check',
-\   'executable': g:clojure_check_bin,
-\   'command_callback': 'ClojureCheck',
-\   'callback': 'ale#handlers#HandleUnixFormatAsError',
-\})
+Plug 'SevereOverfl0w/clojure-check', {'do': './install'}
 ----

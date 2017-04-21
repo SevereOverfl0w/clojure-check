@@ -1,3 +1,4 @@
 /vendor
 /output
 /clojure-check
+/bin
