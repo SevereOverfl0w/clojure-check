@@ -9,8 +9,6 @@ import (
 	"net"
 	"os"
 	"flag"
-	// "os/signal"
-	// "syscall"
 	"regexp"
 )
 
@@ -195,14 +193,6 @@ func main() {
 		return
 	}
 	defer conn.Close()
-
-	// sigchan := make(chan os.Signal, 2)
-	// signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM, syscall.SIGKILL)
-	// go func() {
-	// 	<-sigchan
-	// 	conn.Close()
-	// 	os.Exit(1)
-	// }()
 
 	eastwood(namespaces, conn)
 
