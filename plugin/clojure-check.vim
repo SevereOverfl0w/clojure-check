@@ -7,10 +7,9 @@ if exists('g:loaded_clojure_check')
 endif
 let g:loaded_clojure_check = 1
 
-let s:check_version = '0.1'
+let s:check_version = '0.2'
 let s:base_dir = expand('<sfile>:h:h')
-" let s:clojure_check_bin = s:base_dir.'/bin/clojure-check-v'.s:check_version
-let s:clojure_check_bin = s:base_dir.'clojure-check'
+let s:clojure_check_bin = s:base_dir.'/bin/clojure-check-v'.s:check_version
 
 function! s:ClojureHost()
   return fireplace#client().connection.transport.host
@@ -20,9 +19,13 @@ function! s:ClojurePort()
   return fireplace#client().connection.transport.port
 endfunction
 
+function! s:ClojureCheckArgs(buffer)
+  return ['-nrepl', s:ClojureHost().':'.s:ClojurePort(), '-namespace', fireplace#ns(a:buffer)]
+endfunction
+
 function! ClojureCheck(buffer)
   try
-    return s:clojure_check_bin.' '.s:ClojureHost().':'.s:ClojurePort().' '.fireplace#ns(a:buffer)
+    return s:clojure_check_bin.' '.join(s:ClojureCheckArgs(a:buffer) + ['-file', '-'], ' ')
   catch /Fireplace/
     return ''
   endtry
@@ -37,3 +40,12 @@ try
   \})
 catch /E117/
 endtry
+
+let g:neomake_clojure_check_maker = {
+    \ 'exe': s:clojure_check_bin,
+    \ 'errorformat': '%f:%l:%c: %m',
+    \ }
+
+function! g:neomake_clojure_check_maker.args()
+  return s:ClojureCheckArgs(bufnr('%'))+ ['-file']
+endfunction

@@ -25,8 +25,10 @@ You can get output from eastwood & kibit on a running nREPL via
 
 [source,shell]
 ----
-$ ./output localhost:33999 app.website < src/app/website.clj
+$ ./output -nrepl localhost:33999 -namespace app.website -file - < src/app/website.clj<1>
+$ ./output -nrepl localhost:33999 -namespace app.website -file src/app/website.clj
 ----
+<1> Read from Stdin
 
 === REPL setup
 
@@ -63,4 +65,15 @@ There is ALE integration available in this repo. It depends on Fireplace to find
 ----
 Plug 'w0rp/ale'
 Plug 'SevereOverfl0w/clojure-check', {'do': './install'}
+----
+
+==== Vim - Neomake
+
+There is Neomake integration available in this repo. It depends on Fireplace to find connection details.
+
+----
+Plug 'neomake/neomake'
+Plug 'SevereOverfl0w/clojure-check', {'do': './install'}
+
+let g:neomake_clojure_enabled_makers = ['check']
 ----

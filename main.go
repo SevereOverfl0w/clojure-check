@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"flag"
 	// "os/signal"
 	// "syscall"
 	"regexp"
@@ -102,8 +103,27 @@ func eastwood(args []string, conn net.Conn) {
 	printmsgid(conn, msgid)
 }
 
-func kibit(input string, conn net.Conn) {
-	code := fmt.Sprintf(`(do (require 'kibit.check) (run! (fn [{:keys [file line expr alt]}] (printf "%%s:%%s: Consider using: %%s Instead of %%s\n" file line (pr-str alt) (pr-str expr))) (kibit.check/check-reader (java.io.StringReader. %v))))`, input)
+func kibit(input string, file bool, conn net.Conn) {
+	var reader string
+
+	reporter := `(fn [{:keys [file line expr alt]}] (printf "%s:%s:0: Consider using: %s Instead of %s\n" file line (pr-str alt) (pr-str expr)))`
+
+	if file {
+		escapedFileBin, err := edn.Marshal(input)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		escapedFile := string(escapedFileBin)
+
+		reader = fmt.Sprintf(`(kibit.check/check-file (java.io.File. %v) :reporter %v)`, escapedFile, reporter)
+	} else {
+		reader = fmt.Sprintf(`(run! %v (kibit.check/check-reader (java.io.StringReader. %v)))`, reporter, input)
+	}
+
+	code := fmt.Sprintf(`(do (require 'kibit.check) %v)`, reader)
 
 	msguuid, _ := uuid.NewRandom()
 	msgid := msguuid.String()
@@ -144,12 +164,30 @@ func kibit(input string, conn net.Conn) {
 	}
 }
 
+type namespaceFlags []string
+
+func (i *namespaceFlags) String() string {
+	return "my string representation"
+}
+
+func (i *namespaceFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 func main() {
-	args := os.Args
-	if len(args) < 2 {
+	var namespaces namespaceFlags
+	var file string
+	var nrepl string
+	flag.Var(&namespaces, "namespace", "Namespace to lint. Can be repeated multiple times")
+	flag.StringVar(&file, "file", "-", "File to lint via kibit. If - will be read from stdin. Default is -")
+	flag.StringVar(&nrepl, "nrepl", "", "nREPL connection details in form of host:port. Required.")
+	flag.Parse()
+
+	if nrepl == "" {
+		fmt.Println("nrepl is a required parameter")
 		return
 	}
-	nrepl := args[1]
 
 	conn, err := net.Dial("tcp", nrepl)
 	if err != nil {
@@ -166,9 +204,13 @@ func main() {
 	// 	os.Exit(1)
 	// }()
 
-	eastwood(args[2:], conn)
+	eastwood(namespaces, conn)
 
-	source_file_bytes, err := ioutil.ReadAll(os.Stdin)
-	b, err := edn.Marshal(string(source_file_bytes))
-	kibit(string(b), conn)
+	if file == "-" {
+		source_file_bytes, _ := ioutil.ReadAll(os.Stdin)
+		b, _ := edn.Marshal(string(source_file_bytes))
+		kibit(string(b), false, conn)
+	} else {
+		kibit(file, true, conn)
+	}
 }
