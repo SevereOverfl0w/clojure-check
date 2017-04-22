@@ -81,3 +81,20 @@ Plug 'SevereOverfl0w/clojure-check', {'do': './install'}
 
 let g:neomake_clojure_enabled_makers = ['check']
 ----
+
+==== Vim - makeprg
+
+It's easy to integrate clojure-check with `:make` in Vim.
+
+----
+Plug 'SevereOverfl0w/clojure-check', {'do': './install'}
+----
+
+As parameters are required for making with this CLI, I suggest you also include the `ClojureMake` wrapper for `:make` to automatically insert those args, or any similar usage of the same thing.
+
+.ftplugin/clojure.vim
+----
+let &makeprg=g:clojure_check_bin.' $* -file %'
+command! ClojureMake :execute ':make '.join(ClojureCheckArgs(bufnr('%')))
+----
+
