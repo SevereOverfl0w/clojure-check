@@ -22,6 +22,9 @@ endfunction
 function! s:ClojureHostPort()
   if exists("g:acid_loaded")
     let host_port = AcidGetUrl()
+    if host_port == v:null
+      throw 'Acid: No repl connection'
+    endif
   else
     let host_port = [s:ClojureHost(), s:ClojurePort()]
   endif
@@ -43,7 +46,7 @@ endfunction
 function! ClojureCheck(buffer)
   try
     return g:clojure_check_bin.' '.join(ClojureCheckArgs(a:buffer) + ['-file', '-'], ' ')
-  catch /Fireplace/
+  catch /Fireplace|Acid/
     return ''
   endtry
 endfunction
