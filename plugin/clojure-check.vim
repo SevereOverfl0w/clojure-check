@@ -19,8 +19,25 @@ function! s:ClojurePort()
   return fireplace#client().connection.transport.port
 endfunction
 
+function! s:ClojureHostPort()
+  if exists("g:acid_loaded")
+    let host_port = AcidGetUrl()
+  else
+    let host_port = [s:ClojureHost(), s:ClojurePort()]
+  endif
+  return join(host_port, ":")
+endfunction
+
+function! s:ClojureNs()
+  if exists("g:acid_loaded")
+    return AcidGetNs()
+  else
+    return fireplace#ns(a:buffer)
+  endif
+endfunction
+
 function! ClojureCheckArgs(buffer)
-  return ['-nrepl', s:ClojureHost().':'.s:ClojurePort(), '-namespace', fireplace#ns(a:buffer)]
+  return ['-nrepl', s:ClojureHostPort(), '-namespace', s:ClojureNs()]
 endfunction
 
 function! ClojureCheck(buffer)
