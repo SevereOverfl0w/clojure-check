@@ -67,5 +67,9 @@ let g:neomake_clojure_check_maker = {
     \ }
 
 function! g:neomake_clojure_check_maker.args()
-  return ClojureCheckArgs(bufnr('%'))+ ['-file']
+  try
+    return ClojureCheckArgs(bufnr('%'))+ ['-file']
+  catch /Acid/
+    return []
+  endtry
 endfunction
