@@ -40,15 +40,20 @@ function! s:ClojureNs()
 endfunction
 
 function! ClojureCheckArgs(buffer)
-  return ['-nrepl', s:ClojureHostPort(), '-namespace', s:ClojureNs()]
+  try
+    return ['-nrepl', s:ClojureHostPort(), '-namespace', s:ClojureNs()]
+  catch /Fireplace|Acid/
+    return []
+  endtry
 endfunction
 
 function! ClojureCheck(buffer)
-  try
-    return g:clojure_check_bin.' '.join(ClojureCheckArgs(a:buffer) + ['-file', '-'], ' ')
-  catch /Fireplace|Acid/
+  let clj_args = ClojureCheckArgs(a:buffer)
+  if len(clj_args) > 0
+    return g:clojure_check_bin.' '.join(clj_args + ['-file', '-'], ' ')
+  else
     return ''
-  endtry
+  endif
 endfunction
 
 try
@@ -67,9 +72,5 @@ let g:neomake_clojure_check_maker = {
     \ }
 
 function! g:neomake_clojure_check_maker.args()
-  try
-    return ClojureCheckArgs(bufnr('%'))+ ['-file']
-  catch /Acid/
-    return []
-  endtry
+  return ClojureCheckArgs(bufnr('%'))+ ['-file']
 endfunction
