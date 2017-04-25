@@ -22,7 +22,7 @@ endfunction
 function! s:ClojureHostPort()
   if exists("g:acid_loaded")
     let host_port = AcidGetUrl()
-    if host_port == v:null
+    if string(host_port) == "v:null"
       throw 'Acid: No repl connection'
     endif
   else
