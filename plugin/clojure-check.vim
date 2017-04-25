@@ -42,7 +42,7 @@ endfunction
 function! ClojureCheckArgs(buffer)
   try
     return ['-nrepl', s:ClojureHostPort(), '-namespace', s:ClojureNs()]
-  catch /Fireplace|Acid/
+  catch /Fireplace\|Acid/
     return []
   endtry
 endfunction
