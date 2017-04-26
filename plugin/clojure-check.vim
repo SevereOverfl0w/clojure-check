@@ -61,7 +61,7 @@ try
   \   'name': 'clojure_check',
   \   'executable': g:clojure_check_bin,
   \   'command_callback': 'ClojureCheck',
-  \   'callback': 'ale#handlers#HandleUnixFormatAsError',
+  \   'callback': 'ale#handlers#unix#HandleAsError',
   \})
 catch /E117/
 endtry
