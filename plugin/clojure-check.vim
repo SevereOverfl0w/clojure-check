@@ -31,7 +31,7 @@ function! s:ClojureHostPort()
   return join(host_port, ":")
 endfunction
 
-function! s:ClojureNs()
+function! s:ClojureNs(buffer)
   if exists("g:acid_loaded")
     return AcidGetNs()
   else
@@ -41,7 +41,7 @@ endfunction
 
 function! ClojureCheckArgs(buffer)
   try
-    return ['-nrepl', s:ClojureHostPort(), '-namespace', s:ClojureNs()]
+    return ['-nrepl', s:ClojureHostPort(), '-namespace', s:ClojureNs(a:buffer)]
   catch /Fireplace\|Acid/
     return []
   endtry
